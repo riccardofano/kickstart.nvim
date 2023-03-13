@@ -9,11 +9,11 @@
 return {
   -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
-
   -- NOTE: And you can specify dependencies as well
   dependencies = {
     -- Creates a beautiful debugger UI
     'rcarriga/nvim-dap-ui',
+    'nvim-lua/plenary.nvim',
 
     -- Installs the debug adapters for you
     'williamboman/mason.nvim',
@@ -22,7 +22,6 @@ return {
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
   },
-
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
@@ -37,6 +36,7 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'codelldb'
       },
     }
 
@@ -46,9 +46,11 @@ return {
 
     -- Basic debugging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<F5>', dap.continue)
-    vim.keymap.set('n', '<F1>', dap.step_into)
-    vim.keymap.set('n', '<F2>', dap.step_over)
-    vim.keymap.set('n', '<F3>', dap.step_out)
+    vim.keymap.set('n', '<S-F5>', dap.stop)
+    vim.keymap.set('n', '<C-S-F5>', dap.restart)
+    vim.keymap.set('n', '<F6>', dap.step_over)
+    vim.keymap.set('n', '<F7>', dap.step_into)
+    vim.keymap.set('n', '<S-F7>', dap.step_out)
     vim.keymap.set('n', '<leader>b', dap.toggle_breakpoint)
     vim.keymap.set('n', '<leader>B', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
@@ -63,14 +65,14 @@ return {
       icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
       controls = {
         icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
+          pause = '󰏤',  -- db80 dfe4
+          play = '󰐊',   -- db81 dc0a
+          step_into = '󰆹', -- db80 ddb9
+          step_over = '󰆷', -- db80 ddb7
+          step_out = '󰆸', -- db80 ddb8
+          step_back = '󰓕', -- db81 dcd5
+          run_last = '', -- eacf
+          terminate = '󰓛', -- db81 dcdb
         },
       },
     }

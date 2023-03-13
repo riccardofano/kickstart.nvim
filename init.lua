@@ -23,7 +23,8 @@ require('lazy').setup({
   'tpope/vim-rhubarb',
   'tpope/vim-sleuth',
 
-  { -- LSP Configuration & Plugins
+  {
+    -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
@@ -37,15 +38,18 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
-  { -- Autocompletion
+  {
+    -- Autocompletion
     'hrsh7th/nvim-cmp',
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
   },
-  { -- Useful plugin to show you pending keybinds.
-    'folke/which-key.nvim', 
+  {
+    -- Useful plugin to show you pending keybinds.
+    'folke/which-key.nvim',
     opts = {}
-   },
-  { -- Adds git releated signs to the gutter, as well as utilities for managing changes
+  },
+  {
+    -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
@@ -57,7 +61,8 @@ require('lazy').setup({
       },
     },
   },
-  { -- Set lualine as statusline
+  {
+    -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     opts = {
       options = {
@@ -68,27 +73,33 @@ require('lazy').setup({
       },
     },
   },
-  { -- Add indentation guides even on blank lines
+  {
+    -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
     opts = {
       char = '┊',
       show_trailing_blankline_indent = false,
     },
   },
-  { -- "gc" to comment visual regions/lines
-     'numToStr/Comment.nvim', 
-     opts = {} 
-    },
-  { -- Fuzzy Finder (files, lsp, etc)
-     'nvim-telescope/telescope.nvim', 
-     version = '*', 
-     dependencies = { 'nvim-lua/plenary.nvim' } 
+  {
+    -- "gc" to comment visual regions/lines
+    'numToStr/Comment.nvim',
+    opts = {}
   },
-  { -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-      'nvim-telescope/telescope-fzf-native.nvim',
-      build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
+  {
+    -- Fuzzy Finder (files, lsp, etc)
+    'nvim-telescope/telescope.nvim',
+    version = '*',
+    dependencies = { 'nvim-lua/plenary.nvim' }
   },
-  { -- Highlight, edit, and navigate code
+  {
+    -- Fuzzy Finder Algorithm which requires local dependencies to be built.
+    'nvim-telescope/telescope-fzf-native.nvim',
+    build =
+    'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
+  },
+  {
+    -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
@@ -97,6 +108,7 @@ require('lazy').setup({
       pcall(require('nvim-treesitter.install').update { with_sync = true })
     end,
   },
+  { 'simrat39/rust-tools.nvim' },
 
   { import = 'custom.plugins' },
   { import = 'kickstart.plugins' }
@@ -290,6 +302,9 @@ local on_attach = function(_, bufnr)
   nmap('<leader>wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
+  nmap(
+    "<leader>h", require('rust-tools').hover_actions.hover_actions, '[H]over actions')
+  nmap("<leader>a", require('rust-tools').code_action_group.code_action_group, 'Code [A]ction group')
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -316,15 +331,17 @@ local servers = {
   },
   emmet_ls = {
     filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
-      init_options = {
-        html = {
-          options = {
-            ["bem.enabled"] = true,
-          },
+    init_options = {
+      html = {
+        options = {
+          ["bem.enabled"] = true,
         },
-      }
+      },
+    }
   }
 }
+
+
 
 -- Setup neovim lua configuration
 require('neodev').setup()
@@ -352,6 +369,31 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+-- Rust tools setup
+local extension_path = vim.env.HOME .. '/.vscode/extensions/vadimcn.vscode-lldb-1.9.0'
+local codelldb_path = extension_path .. '/adapter/codelldb'
+-- local liblldb_path = extension_path .. 'lldb/lib/liblldb.so'
+local codelldb_port = 13000
+
+local rt = require('rust-tools')
+
+rt.setup({
+  dap = {
+    adapter = {
+      type = "server",
+      port = codelldb_port,
+      host = "127.0.0.1",
+      executable = {
+        command = codelldb_path,
+        args = { "--port", codelldb_port },
+      },
+    }
+  },
+  server = {
+    on_attach = on_attach
+  }
+})
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
